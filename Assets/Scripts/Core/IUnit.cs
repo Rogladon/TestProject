@@ -11,7 +11,6 @@
         int Health { get; }
         int MaxMana { get; }
         int Mana { get; }
-        
         bool IsAlive();
         
         void AddMana(int mana);
@@ -19,5 +18,7 @@
         void Heal(int heal);
         void Damage(int damage);
         void MoveTo(int x, int y);
+		void AddBuff(IBuff buff);
+		void RemoveBuff(IBuff buff);
     }
 }

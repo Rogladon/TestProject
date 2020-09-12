@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Conf;
 using Logic;
 using View;
@@ -12,7 +13,8 @@ namespace Core
             Spawn,
             Turn,
             Move,
-            Die
+            Die,
+			Buff
         }
 
         private readonly UnitInfo _info;
@@ -23,6 +25,7 @@ namespace Core
         
         private int _destX;
         private int _destY;
+		private List<IBuff> buffs = new List<IBuff>();
         
         public readonly UnitView View;
         
@@ -36,8 +39,10 @@ namespace Core
         public int MaxMana => _info.MaxMana;
         public int Mana { get; private set; }
         public int Speed => _info.Speed;
+		public List<IBuff> Buffs => buffs;
 
-        public Unit(TeamFlag team, UnitInfo info, UnitView view, Battle battle)
+
+		public Unit(TeamFlag team, UnitInfo info, UnitView view, Battle battle)
         {
             Team = team;
             _info = info;
@@ -76,6 +81,15 @@ namespace Core
                 case State.Die:
                     _logic.OnDie();
                     break;
+				case State.Buff:
+					if(buffs.Count == 0) {
+						_state = State.Turn;
+						break;
+					}
+					for(int i = 0; i < buffs.Count; i++) {
+						buffs[i].Tick(this);
+					}
+					break;
             }
         }
 
@@ -118,5 +132,30 @@ namespace Core
             _destY = y;
             _state = State.Move;
         }
-    }
+
+		public void AddBuff(IBuff buff) {
+			IBuff repeatBuff = null;
+			foreach(var b in buffs) {
+				if(b.GetType() == buff.GetType()) {
+					repeatBuff = b;
+					break;
+				}
+			}
+			if(repeatBuff != null) {
+				buffs.Remove(repeatBuff);
+			}
+			IBuff newBuff = buff.Copy();
+			buffs.Add(newBuff);
+			newBuff.StartBuff(this);
+			_state = State.Buff;
+		}
+
+		public void RemoveBuff(IBuff buff) {
+			buff.EndBuff(this);
+			buffs.Remove(buff);
+			if (buffs.Count == 0) {
+				_state = State.Turn;
+			}
+		}
+	}
 }

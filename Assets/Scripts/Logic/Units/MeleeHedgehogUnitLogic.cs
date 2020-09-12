@@ -49,12 +49,13 @@ namespace Logic
             if (target != null && target.IsAlive() && Core.GetDistance(Unit, target) < _attackDistance)
             {
                 target.Damage(_abilityDamage);
+				_abilityDamage = 0;
             }
         }
     
         public override int OnDamage(int damage)
         {
-            if (damage >= _healHpThreshold)
+            if (damage > _healHpThreshold)
             {
                 Unit.Heal(_healValue);
             }
@@ -66,7 +67,6 @@ namespace Logic
             if (delta > 0)
             {
                 _abilityDamage += _abilityDamageIncreaseStep;
-                delta = 0;
             }
             return delta;
         }

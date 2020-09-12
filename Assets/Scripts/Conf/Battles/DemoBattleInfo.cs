@@ -11,12 +11,12 @@
             AddBlue(new MeleeHedgehogUnitInfo(), 46, 35);
             AddBlue(new MeleeSoldierUnitInfo(),  48, 32);
             AddBlue(new MeleeAssassinUnitInfo(), 50, 30);
-            AddBlue(new MeleeAssassinUnitInfo(), 52, 30);
-            AddBlue(new MeleeHedgehogUnitInfo(), 54, 35);
+            AddBlue(new RangeArcherUnitInfo(), 52, 30);
+            AddBlue(new MeleeMonkUnitInfo(), 54, 35);
             
             
             AddRed(new RangeArcherUnitInfo(),    42, 48);
-            AddRed(new MeleeSoldierUnitInfo(),   44, 52);
+            AddRed(new MeleeMonkUnitInfo(),   44, 52);
             AddRed(new MeleeAssassinUnitInfo(),  46, 50);
             AddRed(new MeleeSoldierUnitInfo(),   48, 52);
             AddRed(new MeleeAssassinUnitInfo(),  50, 50);

@@ -9,6 +9,7 @@ namespace Logic
         private readonly int _killChance;
         private readonly int _damage;
         private readonly int _manaRegen;
+		private readonly IBuff _stunningDeBuff;
 
         public RangeArcherUnitLogic(RangeArcherUnitInfo info, IUnit unit, ICore core) : base(unit, core)
         {
@@ -16,6 +17,7 @@ namespace Logic
             _manaRegen = info.ManaRegen;
             _attackDistance = info.AttackDistance;
             _killChance = info.KillChance;
+			_stunningDeBuff = info.StunningDeBuff;
 
         }
     
@@ -39,9 +41,12 @@ namespace Logic
         public override void OnAbility()
         {
             var target = Core.GetNearestEnemy(Unit);
-            if (target != null && target.IsAlive() && UnityEngine.Random.Range(0, 100) < _killChance)
+            if (target != null && target.IsAlive())
             {
-                target.Damage(target.MaxHealth);
+				if (UnityEngine.Random.Range(0, 100) < _killChance)
+					target.Damage(target.MaxHealth);
+				else
+					target.AddBuff(_stunningDeBuff);
             }
         }
 	

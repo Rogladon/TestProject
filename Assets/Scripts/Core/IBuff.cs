@@ -15,10 +15,15 @@ namespace Core {
 
 		public abstract IBuff Copy();
 
-		public abstract void LogicTick(IUnit unit);
+		public virtual void PreLogicTick(IUnit unit) { }
+		public virtual void PostLogicTick(IUnit unit) { }
 
-		public void Tick(IUnit unit) {
-			LogicTick(unit);
+		public void PreTick(IUnit unit) {
+			PreLogicTick(unit);
+		}
+
+		public void PostTick(IUnit unit) {
+			PostLogicTick(unit);
 
 			numberOfLifeTick--;
 
@@ -30,5 +35,14 @@ namespace Core {
 
 		public virtual void StartBuff(IUnit unit) { }
 		public virtual void EndBuff(IUnit unit) { }
+
+		public virtual int OnDamage(int damage) {
+			return damage;
+		}
+		public virtual int OnBeforeManaChange(int delta) {
+			return delta;
+		}
+		public virtual void OnDie() {
+		}
 	}
 }

@@ -15,10 +15,14 @@ namespace Logic {
 		}
 
 		public override void StartBuff(IUnit unit) {
+			unit.LockAction = true;
 			healthUnit = unit.Health;
 		}
+		public override void EndBuff(IUnit unit) {
+			unit.LockAction = false;
+		}
 
-		public override void LogicTick(IUnit unit) {
+		public override void PostLogicTick(IUnit unit) {
 			if (unit.Health < healthUnit - 100) {
 				unit.RemoveBuff(this);
 				return;
@@ -29,7 +33,5 @@ namespace Logic {
 		public override IBuff Copy() {
 			return new StunningDeBuff(this);
 		}
-
-		
 	}
 }

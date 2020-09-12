@@ -52,8 +52,8 @@ namespace Core
         {
             LogicTick();
         }
-        
-        public void Finish()
+
+		public void Finish()
         {
             while (_units.Any())
             {
@@ -98,7 +98,7 @@ namespace Core
             dead.Clear();
         }
 
-        private bool IsCellTaken(Vector2 position)
+		private bool IsCellTaken(Vector2 position)
         {
             return _grid[(int) position.x, (int) position.y] != null;
         }
@@ -165,5 +165,7 @@ namespace Core
             _units.Remove(unit);
             unit.View.Destroy();
         }
-    }
+
+		
+	}
 }

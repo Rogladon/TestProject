@@ -11,6 +11,7 @@
         int Health { get; }
         int MaxMana { get; }
         int Mana { get; }
+		bool LockAction { get; set; }
         bool IsAlive();
         
         void AddMana(int mana);

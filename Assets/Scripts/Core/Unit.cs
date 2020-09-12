@@ -13,8 +13,7 @@ namespace Core
             Spawn,
             Turn,
             Move,
-            Die,
-			Buff
+            Die
         }
 
         private readonly UnitInfo _info;
@@ -41,9 +40,11 @@ namespace Core
         public int Speed => _info.Speed;
 		public List<IBuff> Buffs => buffs;
 
+		public bool LockAction { get; set; }
 
 		public Unit(TeamFlag team, UnitInfo info, UnitView view, Battle battle)
         {
+			LockAction = false;
             Team = team;
             _info = info;
             
@@ -59,17 +60,24 @@ namespace Core
 
         public void Tick()
         {
-            switch (_state)
+			if (buffs.Count != 0) {
+				for (int i = 0; i < buffs.Count; i++) {
+					buffs[i].PreTick(this);
+				}
+			}
+			switch (_state)
             {
                 case State.Spawn:
                     _logic.OnSpawn();
                     _state = State.Turn;
                     break;
                 case State.Move:
+					if (LockAction) break;
                     _battle.AskMoveUnitTo(this, _destX, _destY);
                     _state = State.Turn;
                     break;
                 case State.Turn:
+					if (LockAction) break;
                     if (Mana == MaxMana)
                     {
                         _logic.OnAbility();
@@ -79,19 +87,16 @@ namespace Core
                     _logic.OnTurn();
                     break;
                 case State.Die:
-                    _logic.OnDie();
+                    OnDie();
                     break;
-				case State.Buff:
-					if(buffs.Count == 0) {
-						_state = State.Turn;
-						break;
-					}
-					for(int i = 0; i < buffs.Count; i++) {
-						buffs[i].Tick(this);
-					}
-					break;
             }
-        }
+			if (!IsAlive()) return;
+			if (buffs.Count != 0) {
+				for (int i = 0; i < buffs.Count; i++) {
+					buffs[i].PostTick(this);
+				}
+			}
+		}
 
         public bool IsAlive()
         {
@@ -100,25 +105,37 @@ namespace Core
         
         public void AddMana(int mana)
         {
+			foreach (var b in buffs) {
+				mana = b.OnBeforeManaChange(mana);
+			}
+			if (LockAction) return;
             mana = _logic.OnBeforeManaChange(mana);
             Mana = Math.Min(MaxMana, Mana + mana);
         }
         
         public void SubMana(int mana)
         {
-            mana = -_logic.OnBeforeManaChange(-mana);
+			foreach (var b in buffs) {
+				mana = b.OnBeforeManaChange(mana);
+			}
+			if (LockAction) return;
+			mana = -_logic.OnBeforeManaChange(-mana);
             Mana = Math.Min(MaxMana, Mana - mana);
         }
         
         public void Heal(int heal)
         {
-            heal = _logic.OnHeal(heal);
+			if (LockAction) return;
+			heal = _logic.OnHeal(heal);
             Health = Math.Min(MaxHealth, Health + heal);
         }
 
         public void Damage(int damage)
         {
-            damage = _logic.OnDamage(damage);
+			foreach(var b in buffs) {
+				damage = b.OnDamage(damage);
+			}
+			damage = _logic.OnDamage(damage);
             Health = Math.Max(0, Health - damage);
             if (!IsAlive())
             {
@@ -128,10 +145,18 @@ namespace Core
 
         public void MoveTo(int x, int y)
         {
-            _destX = x;
+			if (LockAction) return;
+			_destX = x;
             _destY = y;
             _state = State.Move;
         }
+
+		public void OnDie() {
+			_logic.OnDie();
+			foreach (var b in buffs) {
+				b.OnDie();
+			}
+		}
 
 		public void AddBuff(IBuff buff) {
 			IBuff repeatBuff = null;
@@ -147,15 +172,11 @@ namespace Core
 			IBuff newBuff = buff.Copy();
 			buffs.Add(newBuff);
 			newBuff.StartBuff(this);
-			_state = State.Buff;
 		}
 
 		public void RemoveBuff(IBuff buff) {
 			buff.EndBuff(this);
 			buffs.Remove(buff);
-			if (buffs.Count == 0) {
-				_state = State.Turn;
-			}
 		}
 	}
 }

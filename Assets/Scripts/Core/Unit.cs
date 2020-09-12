@@ -24,7 +24,6 @@ namespace Core
         
         private int _destX;
         private int _destY;
-		private List<IBuff> buffs = new List<IBuff>();
         
         public readonly UnitView View;
         
@@ -38,9 +37,9 @@ namespace Core
         public int MaxMana => _info.MaxMana;
         public int Mana { get; private set; }
         public int Speed => _info.Speed;
-		public List<IBuff> Buffs => buffs;
-
 		public bool LockAction { get; set; }
+
+		public List<IBuff> Buffs { get; private set; } = new List<IBuff>();
 
 		public Unit(TeamFlag team, UnitInfo info, UnitView view, Battle battle)
         {
@@ -60,9 +59,9 @@ namespace Core
 
         public void Tick()
         {
-			if (buffs.Count != 0) {
-				for (int i = 0; i < buffs.Count; i++) {
-					buffs[i].PreTick();
+			if (Buffs.Count != 0) {
+				for (int i = 0; i < Buffs.Count; i++) {
+					Buffs[i].PreTick();
 				}
 			}
 			switch (_state)
@@ -91,9 +90,9 @@ namespace Core
                     break;
             }
 			if (!IsAlive()) return;
-			if (buffs.Count != 0) {
-				for (int i = 0; i < buffs.Count; i++) {
-					buffs[i].PostTick();
+			if (Buffs.Count != 0) {
+				for (int i = 0; i < Buffs.Count; i++) {
+					Buffs[i].PostTick();
 				}
 			}
 		}
@@ -105,8 +104,8 @@ namespace Core
         
         public void AddMana(int mana)
         {
-			for (int i = 0; i < buffs.Count; i++) {
-				mana = buffs[i].OnBeforeManaChange(mana);
+			for (int i = 0; i < Buffs.Count; i++) {
+				mana = Buffs[i].OnBeforeManaChange(mana);
 			}
 			if (LockAction) return;
             mana = _logic.OnBeforeManaChange(mana);
@@ -115,8 +114,8 @@ namespace Core
         
         public void SubMana(int mana)
         {
-			for (int i = 0; i < buffs.Count; i++) {
-				mana = buffs[i].OnBeforeManaChange(-mana);
+			for (int i = 0; i < Buffs.Count; i++) {
+				mana = Buffs[i].OnBeforeManaChange(-mana);
 			}
 			if (LockAction) return;
 			mana = -_logic.OnBeforeManaChange(-mana);
@@ -132,8 +131,8 @@ namespace Core
 
         public void Damage(int damage)
         {
-			for (int i = 0; i < buffs.Count; i++) {
-				damage = buffs[i].OnDamage(damage);
+			for (int i = 0; i < Buffs.Count; i++) {
+				damage = Buffs[i].OnDamage(damage);
 			}
 			damage = _logic.OnDamage(damage);
             Health = Math.Max(0, Health - damage);
@@ -153,30 +152,30 @@ namespace Core
 
 		public void OnDie() {
 			_logic.OnDie();
-			for (int i = 0; i < buffs.Count; i++) {
-				buffs[i].OnDie();
+			for (int i = 0; i < Buffs.Count; i++) {
+				Buffs[i].OnDie();
 			}
 		}
 
 		public void AddBuff(IBuff buff) {
 			IBuff repeatBuff = null;
-			for (int i = 0; i < buffs.Count; i++) {
-				if(buffs[i].GetType() == buff.GetType()) {
-					repeatBuff = buffs[i];
+			for (int i = 0; i < Buffs.Count; i++) {
+				if(Buffs[i].GetType() == buff.GetType()) {
+					repeatBuff = Buffs[i];
 					break;
 				}
 			}
 			if(repeatBuff != null) {
-				buffs.Remove(repeatBuff);
+				Buffs.Remove(repeatBuff);
 			}
 			IBuff newBuff = buff.Copy(this, _battle);
-			buffs.Add(newBuff);
+			Buffs.Add(newBuff);
 			newBuff.StartBuff();
 		}
 
 		public void RemoveBuff(IBuff buff) {
 			buff.EndBuff();
-			buffs.Remove(buff);
+			Buffs.Remove(buff);
 		}
 	}
 }

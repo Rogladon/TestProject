@@ -12,8 +12,8 @@
         int MaxMana { get; }
         int Mana { get; }
 		bool LockAction { get; set; }
+		System.Collections.Generic.List<IBuff> Buffs { get; }
         bool IsAlive();
-        
         void AddMana(int mana);
         void SubMana(int mana);
         void Heal(int heal);

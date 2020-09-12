@@ -4,15 +4,15 @@ using UnityEngine;
 namespace Core {
 	public abstract class IBuff {
 
-		protected int numberOfLifeTick = 1;
+		protected int NumberOfLifeTick = 1;
 		protected IUnit Unit { get; }
 		protected ICore Core { get; }
 
 		protected IBuff(int lifeTick) {
-			numberOfLifeTick = lifeTick;
+			NumberOfLifeTick = lifeTick;
 		}
 		protected IBuff(IBuff buff, IUnit unit, ICore core) {
-			numberOfLifeTick = buff.numberOfLifeTick;
+			NumberOfLifeTick = buff.NumberOfLifeTick;
 			Unit = unit;
 			Core = core;
 		}
@@ -29,9 +29,9 @@ namespace Core {
 		public void PostTick() {
 			PostLogicTick();
 
-			numberOfLifeTick--;
+			NumberOfLifeTick--;
 
-			if (numberOfLifeTick <= 0) {
+			if (NumberOfLifeTick <= 0) {
 				Unit.RemoveBuff(this);
 				return;
 			}

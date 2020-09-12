@@ -62,7 +62,7 @@ namespace Core
         {
 			if (buffs.Count != 0) {
 				for (int i = 0; i < buffs.Count; i++) {
-					buffs[i].PreTick(this);
+					buffs[i].PreTick();
 				}
 			}
 			switch (_state)
@@ -93,7 +93,7 @@ namespace Core
 			if (!IsAlive()) return;
 			if (buffs.Count != 0) {
 				for (int i = 0; i < buffs.Count; i++) {
-					buffs[i].PostTick(this);
+					buffs[i].PostTick();
 				}
 			}
 		}
@@ -105,8 +105,8 @@ namespace Core
         
         public void AddMana(int mana)
         {
-			foreach (var b in buffs) {
-				mana = b.OnBeforeManaChange(mana);
+			for (int i = 0; i < buffs.Count; i++) {
+				mana = buffs[i].OnBeforeManaChange(mana);
 			}
 			if (LockAction) return;
             mana = _logic.OnBeforeManaChange(mana);
@@ -115,8 +115,8 @@ namespace Core
         
         public void SubMana(int mana)
         {
-			foreach (var b in buffs) {
-				mana = b.OnBeforeManaChange(mana);
+			for (int i = 0; i < buffs.Count; i++) {
+				mana = buffs[i].OnBeforeManaChange(-mana);
 			}
 			if (LockAction) return;
 			mana = -_logic.OnBeforeManaChange(-mana);
@@ -132,8 +132,8 @@ namespace Core
 
         public void Damage(int damage)
         {
-			foreach(var b in buffs) {
-				damage = b.OnDamage(damage);
+			for (int i = 0; i < buffs.Count; i++) {
+				damage = buffs[i].OnDamage(damage);
 			}
 			damage = _logic.OnDamage(damage);
             Health = Math.Max(0, Health - damage);
@@ -153,29 +153,29 @@ namespace Core
 
 		public void OnDie() {
 			_logic.OnDie();
-			foreach (var b in buffs) {
-				b.OnDie();
+			for (int i = 0; i < buffs.Count; i++) {
+				buffs[i].OnDie();
 			}
 		}
 
 		public void AddBuff(IBuff buff) {
 			IBuff repeatBuff = null;
-			foreach(var b in buffs) {
-				if(b.GetType() == buff.GetType()) {
-					repeatBuff = b;
+			for (int i = 0; i < buffs.Count; i++) {
+				if(buffs[i].GetType() == buff.GetType()) {
+					repeatBuff = buffs[i];
 					break;
 				}
 			}
 			if(repeatBuff != null) {
 				buffs.Remove(repeatBuff);
 			}
-			IBuff newBuff = buff.Copy();
+			IBuff newBuff = buff.Copy(this, _battle);
 			buffs.Add(newBuff);
-			newBuff.StartBuff(this);
+			newBuff.StartBuff();
 		}
 
 		public void RemoveBuff(IBuff buff) {
-			buff.EndBuff(this);
+			buff.EndBuff();
 			buffs.Remove(buff);
 		}
 	}

@@ -10,28 +10,28 @@ namespace Logic {
 			numberOfLifeTick = lifeTick;
 		}
 
-		private StunningDeBuff(StunningDeBuff buff) : base(buff) {
+		private StunningDeBuff(StunningDeBuff buff, IUnit unit, ICore core) : base(buff, unit, core) {
 			numberOfLifeTick = buff.numberOfLifeTick;
 		}
 
-		public override void StartBuff(IUnit unit) {
-			unit.LockAction = true;
-			healthUnit = unit.Health;
+		public override void StartBuff() {
+			Unit.LockAction = true;
+			healthUnit = Unit.Health;
 		}
-		public override void EndBuff(IUnit unit) {
-			unit.LockAction = false;
+		public override void EndBuff() {
+			Unit.LockAction = false;
 		}
 
-		public override void PostLogicTick(IUnit unit) {
-			if (unit.Health < healthUnit - 100) {
-				unit.RemoveBuff(this);
+		public override void PostLogicTick() {
+			if (Unit.Health < healthUnit - 100) {
+				Unit.RemoveBuff(this);
 				return;
 			}
-			healthUnit = unit.Health;
+			healthUnit = Unit.Health;
 		}
 
-		public override IBuff Copy() {
-			return new StunningDeBuff(this);
+		public override IBuff Copy(IUnit unit, ICore core) {
+			return new StunningDeBuff(this, unit, core);
 		}
 	}
 }

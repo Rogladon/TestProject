@@ -5,36 +5,40 @@ namespace Core {
 	public abstract class IBuff {
 
 		protected int numberOfLifeTick = 1;
+		protected IUnit Unit { get; }
+		protected ICore Core { get; }
 
 		protected IBuff(int lifeTick) {
 			numberOfLifeTick = lifeTick;
 		}
-		protected IBuff(IBuff buff) {
+		protected IBuff(IBuff buff, IUnit unit, ICore core) {
 			numberOfLifeTick = buff.numberOfLifeTick;
+			Unit = unit;
+			Core = core;
 		}
 
-		public abstract IBuff Copy();
+		public abstract IBuff Copy(IUnit unit, ICore core);
 
-		public virtual void PreLogicTick(IUnit unit) { }
-		public virtual void PostLogicTick(IUnit unit) { }
+		public virtual void PreLogicTick() { }
+		public virtual void PostLogicTick() { }
 
-		public void PreTick(IUnit unit) {
-			PreLogicTick(unit);
+		public void PreTick() {
+			PreLogicTick();
 		}
 
-		public void PostTick(IUnit unit) {
-			PostLogicTick(unit);
+		public void PostTick() {
+			PostLogicTick();
 
 			numberOfLifeTick--;
 
 			if (numberOfLifeTick <= 0) {
-				unit.RemoveBuff(this);
+				Unit.RemoveBuff(this);
 				return;
 			}
 		}
 
-		public virtual void StartBuff(IUnit unit) { }
-		public virtual void EndBuff(IUnit unit) { }
+		public virtual void StartBuff() { }
+		public virtual void EndBuff() { }
 
 		public virtual int OnDamage(int damage) {
 			return damage;
